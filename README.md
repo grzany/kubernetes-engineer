@@ -31,7 +31,14 @@ See [here](#components)
 ### CPU and memory limits
 ### Multitenancy and cluster hardening
 ### Secrets/ConfigMaps
-### Mutations and admissions
+### Admission controllers
+Using admission controllers: <https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/>
+admission controllers is a piece of code which intercepts API requests (after those are authenticated and authorized)
+There is a whole list of controllers, of which two are special - MutatingAdmissionWebhook and ValidatingAdmissionWebhook.
+With admission controllers one can change the bahaviour of created object, e.g. AlwaysPullImages or DefaultIngressClass.
+For example cert-manager uses MutatingAdmissionWebhook and ValidatingAdmissionWebhook for cainjector
+
+
 ### Ingress solutions
 ### CRDs
 
