@@ -2,6 +2,10 @@
 Knowledge for every k8s engineer
 
 ## Kubernetes
+### What happens when one types kubectl -f deployment.yaml
+good explanation - <https://github.com/jamiehannaford/what-happens-when-k8s>
+
+more pictures - <https://twitter.com/learnk8s/status/1093116707512729601?lang=en-gb>
 ### Clusters
 Information about clusters lifecycle
 ### Components
