@@ -241,6 +241,7 @@ Extend k8s API with CRDs: <https://kubernetes.io/docs/tasks/extend-kubernetes/cu
 ### Systems level architecture of distributed or similar systems
 ### High performance computing
 ### Time/space complexity
+<https://www.freecodecamp.org/news/big-o-notation-why-it-matters-and-why-it-doesnt-1674cfa8a23c/>
 ### Test Driven development 
 ### Edge cases
 ### CI/CD
