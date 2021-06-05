@@ -27,6 +27,60 @@ See [here](#components)
 ### Accessing applications hosted in Kubernetes
 ### Pod controllers
 ### RBAC
+Using RBAC: <https://kubernetes.io/docs/reference/access-authn-authz/rbac/>
+
+RBAC is used to provide authentication and authorization on the k8s API server (and the whole cluster essentially).
+
+RBAC can be enabled on the API server by configuring the --authorization-mode to include RBAC:
+
+```
+kube-apiserver --authorization-mode=other methods,RBAC
+```
+
+The RBAC API declares four kinds of Kubernetes object: Role, ClusterRole, RoleBinding and ClusterRoleBinding:
+
+1. Role and ClusterRole
+
+Role and ClusterRole define set of rules to access resources within the cluster. Permissions are purely additive - there is no deny rule.
+
+Role is defined per namespace and ClusterRole is  defined cluster-wide.
+
+example role definition which grants access to pods in default namespace:
+
+```apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+```
+2. RoleBinding and ClusterRoleBinding
+A role binding grants the permissions defined in a role to a subject (users, groups, or service accounts)
+
+Example ClusterRoleBinding that grants the "pod-reader" Role to the user "jane" within the "default" namespace. This allows "jane" to read pods in the "default" namespace.
+```
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+# You can specify more than one "subject"
+- kind: User
+  name: jane # "name" is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: pod-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+```
+
 ### APIs
 ### CPU and memory limits
 ### Multitenancy and cluster hardening
