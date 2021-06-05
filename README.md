@@ -18,14 +18,91 @@ The Kubernetes command-line tool, kubectl, allows you to run commands against Ku
 
 Kubectl reference: <https://kubernetes.io/docs/reference/kubectl/>
 ### Deployments
+A Deployment provides declarative updates for Pods and ReplicaSets. The deployment creates a ReplicaSet object based on 'replicas' parameter which creates pod object according to the pod template (spec.template).
+Example deployment definition:
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+It is straight forward to update a deployment. For example to change docker image of the container:
+
+```
+kubectl --record deployment.apps/nginx-deployment set image deployment.v1.apps/nginx-deployment nginx=nginx:1.16.1
+```
+The Deployment updates Pods in a rolling update fashion when .spec.strategy.type==RollingUpdate (which is default). You can specify maxUnavailable and maxSurge to control the rolling update process.
+
+There are ways to provide different deployment strategies - canary, blue/green etc.
+
+
 ### Pods
+Pods are the smallest deployable units of computing that you can create and manage in Kubernetes. Pod (as in pod of dolphins) is a group of oe or more containers. All the containers within pod run in shared context, e.g. those can share filesystem.
+Alongside application pods one can run init containers (which runs first) or a sidecar containers.
+Sample pod definition:
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-demo
+  namespace: cpu-example
+spec:
+  containers:
+  - name: cpu-demo-ctr
+    image: vish/stress
+    resources:
+      limits:
+        cpu: "1"
+      requests:
+        cpu: "0.5"
+    args:
+    - -cpus
+    - "2"
+```
 ### Nodes
 See [here](#components)
-### Requests
+### Requests and limits
+Managing resources for containers: <https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/>
+
+When you specify the resource request for Containers in a Pod, the scheduler uses this information to decide which node to place the Pod on. When you specify a resource limit for a Container, the kubelet enforces those limits so that the running container is not allowed to use more of that resource than the limit you set. The kubelet also reserves at least the request amount of that system resource specifically for that container to use.
+
+
+There are three types of resources one can define requests and limits for:
+* CPU
+* memory
+* huge pages
+
 ### Metrics and logging
 ### Troubleshooting
 ### Accessing applications hosted in Kubernetes
+
 ### Pod controllers
+We can distinguish following most popular pod controllers:
+
+* ReplicaSet - A ReplicaSet creates a stable set of pods, all running the same workload. You will almost never create this directly.
+* Deployment - A Deployment is the most common way to get your app on Kubernetes. It maintains a ReplicaSet with the desired configuration, with some additional configuration for managing updates and rollbacks.
+* StatefulSet - A StatefulSet is used to manage stateful applications with persistent storage. Pod names are persistent and are retained when rescheduled (app-0, app-1). Storage stays associated with replacement pods, and volumes persist when pods are deleted.
+* Job - A Job creates one or more short-lived Pods and expects them to successfully terminate.
+* CronJob - A CronJob creates Jobs on a schedule.
+* DaemonSet - A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. As nodes are removed from the cluster, those Pods are garbage collected. Common for system processes like CNI, Monitor agents, proxies, etc.
+
 ### RBAC
 Using RBAC: <https://kubernetes.io/docs/reference/access-authn-authz/rbac/>
 
@@ -82,9 +159,37 @@ roleRef:
 ```
 
 ### APIs
-### CPU and memory limits
 ### Multitenancy and cluster hardening
-### Secrets/ConfigMaps
+### Secret
+Official documentation: <https://kubernetes.io/docs/concepts/configuration/secret/>
+
+A Secret is an object that contains a small amount of sensitive data such as a password, a token, or a key. Such information might otherwise be put in a Pod specification or in an image. Users can create Secrets and the system also creates some Secrets.
+
+Note: Kubernetes Secrets are, by default, stored as unencrypted base64-encoded strings. Those can be directly accessed on etcd or anyone with a relevant API access
+
+There are following types of secrets available in kubernetes:
+
+* Opaque	arbitrary user-defined data
+* kubernetes.io/service-account-token	service account token
+* kubernetes.io/dockercfg	serialized ~/.dockercfg file
+* kubernetes.io/dockerconfigjson	serialized ~/.docker/config.json file
+* kubernetes.io/basic-auth	credentials for basic authentication
+* kubernetes.io/ssh-auth	credentials for SSH authentication
+* kubernetes.io/tls	data for a TLS client or server
+* bootstrap.kubernetes.io/token	bootstrap token data
+
+### ConfigMap
+Official documentation: <https://kubernetes.io/docs/concepts/configuration/configmap/>
+
+A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume.
+
+There are four different ways that you can use a ConfigMap to configure a container inside a Pod:
+
+* Inside a container command and args
+* Environment variables for a container
+* Add a file in read-only volume, for the application to read
+* Write code to run inside the Pod that uses the Kubernetes API to read a ConfigMap
+
 ### Admission controllers
 Using admission controllers: <https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/>
 admission controllers is a piece of code which intercepts API requests (after those are authenticated and authorized)
@@ -94,7 +199,34 @@ For example cert-manager uses MutatingAdmissionWebhook and ValidatingAdmissionWe
 
 
 ### Ingress solutions
+
+Kubernetes as a project supports and maintains AWS, GCE, and nginx ingress controllers but there are many controllers available provided by third parties, e.g. ha-proxy, istio etc.
+
+each cluster must define at least one ingress controller to be usable. There is a possiblity to run more than one ingress controllers and choose which one to use by the app with defining ingress.class. Example could be to run multiple instances of nginx ingress controllers with a different configuration or nginx controller with ha-proxy.
+
+
+
 ### CRDs
+Official documentation: <https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/>
+
+Custom resources are extensions of the Kubernetes API. CRD allows to define kubernetes resources with top-level support from kubectl, kubectl get myobject objectname
+
+Kubernetes provides two ways to add custom resources to your cluster:
+
+* CRDs are simple and can be created without any programming.
+* API Aggregation requires programming, but allows more control over API behaviors like how data is stored and conversion between API versions.
+
+The CustomResourceDefinition API resource allows you to define custom resources. Defining a CRD object creates a new custom resource with a name and schema that you specify. The Kubernetes API serves and handles the storage of your custom resource. The name of a CRD object must be a valid DNS subdomain name.
+
+This frees you from writing your own API server to handle the custom resource, but the generic nature of the implementation means you have less flexibility than with API server aggregation.
+
+Refer to the custom controller example <https://github.com/kubernetes/sample-controller> for an example of how to register a new custom resource, work with instances of your new resource type, and use a controller to handle events.
+
+Extend k8s API with CRDs: <https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/>
+
+
+
+
 
 ## Programming
 ### Optimisations
