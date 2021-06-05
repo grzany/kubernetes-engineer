@@ -3,6 +3,7 @@ Knowledge for every k8s engineer
 
 ## Kubernetes
 ### Clusters
+Information about clusters lifecycle
 ### Components
 ### Kubectl
 ### Deployments
