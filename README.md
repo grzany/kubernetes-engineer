@@ -5,10 +5,18 @@ Knowledge for every k8s engineer
 ### Clusters
 Information about clusters lifecycle
 ### Components
+Official documentation: <https://kubernetes.io/docs/concepts/overview/components/>
+
+Architecture diagram ![](https://d33wubrfki0l68.cloudfront.net/2475489eaf20163ec0f54ddc1d92aa8d4c87c96b/e7c81/images/docs/components-of-kubernetes.svg) 
+
 ### Kubectl
+The Kubernetes command-line tool, kubectl, allows you to run commands against Kubernetes clusters. You can use kubectl to deploy applications, inspect and manage cluster resources, and view logs. For more information including a complete list of kubectl operations, see the kubectl reference documentation.
+
+Kubectl reference: <https://kubernetes.io/docs/reference/kubectl/>
 ### Deployments
 ### Pods
 ### Nodes
+See [here](#components)
 ### Requests
 ### Metrics and logging
 ### Troubleshooting
