@@ -91,6 +91,22 @@ There are three types of resources one can define requests and limits for:
 
 ### Metrics and logging
 ### Troubleshooting
+#### Troubleshooting applications
+<https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application/>
+#### Troubleshooting cluster
+<https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/>
+```
+kubectl cluster-info dump
+```
+Logs available for inspection on master and worker nodes:
+* Master
+  * /var/log/kube-apiserver.log - API Server, responsible for serving the API
+  * /var/log/kube-scheduler.log - Scheduler, responsible for making scheduling decisions
+  * /var/log/kube-controller-manager.log - Controller that manages replication controllers
+* Worker Nodes
+  * /var/log/kubelet.log - Kubelet, responsible for running containers on the node
+  * /var/log/kube-proxy.log - Kube Proxy, responsible for service load balancing
+
 ### Accessing applications hosted in Kubernetes
 There are many ways to access the applications hosted in k8s. Most popular ways described below. It is assumed that an user has got kubectl and corresponding kubeconfig for a cluster the application is hosted on.
 
@@ -167,6 +183,8 @@ roleRef:
 ```
 
 ### APIs
+Official documentation: <https://kubernetes.io/docs/concepts/overview/kubernetes-api/>
+API groups: <https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.21/#-strong-api-groups-strong->
 ### Multitenancy and cluster hardening
 To run a multi tenant cluster can be a challenge but luckily we have got few mechanisms on our disposal to tackle the problem:
 * namespaces to isolate worloads
