@@ -92,6 +92,14 @@ There are three types of resources one can define requests and limits for:
 ### Metrics and logging
 ### Troubleshooting
 ### Accessing applications hosted in Kubernetes
+There are many ways to access the applications hosted in k8s. Most popular ways described below. It is assumed that an user has got kubectl and corresponding kubeconfig for a cluster the application is hosted on.
+
+#### Port forwarding
+Kubectl port-forward command can be used to access any application which creates a service of ClusterIP type.
+```
+kubectl port-forward pods/<app-pod> <local_port>:<pods_port>
+curl localhost:<local_port>
+```
 
 ### Pod controllers
 We can distinguish following most popular pod controllers:
@@ -160,6 +168,40 @@ roleRef:
 
 ### APIs
 ### Multitenancy and cluster hardening
+To run a multi tenant cluster can be a challenge but luckily we have got few mechanisms on our disposal to tackle the problem:
+* namespaces to isolate worloads
+* RBAC to grant access per namespace (Role, RoleBinding)
+* network policies for traffic control between pods
+* service accounts for the applications
+* secrets handling with external vault
+* reources quotas on a namespace level to avoid other applications from the resource starvation
+
+Keeping the version of Kubernetes up to date is one of the simplest things you can do to improve your security.
+Kubernetes maintains last 3 minor versions and patch releases should a vulnerabillity be discovered. kubernetes-annoucement mailing list is a good idea to be subscribed to.
+
+Hardening of the cluster security starts with **hardening underlying host OS**. Here, all standard hardening techniques apply but most important is to run a minimum set of software just to be able to run kubernetes components. Ideal would be to run the system with immutable file system and annomalies detection or using tools like SELinux, AppArmor, Seccomp.
+
+Restricting **network access** to k8s nodes is another good idea.
+
+Protect **access to API with RBAC**
+
+
+K8s **network policies** to control traffic between pods and clusters. The idea is to deny all egress and ingress from/to all pods and open up traffic as required.
+
+K8s **Pod security**
+* run apps as non-root user
+* use RO root filesystem
+* Do not allow privilege escalation
+* Scan images for vulnerabillities
+
+
+**Continues Monitoring** with audit enabled.
+
+Most of the steps above can be enforced with Open Policies Agent like gatekeeper: <https://github.com/open-policy-agent/gatekeeper> and pod security policies: <https://github.com/open-policy-agent/gatekeeper-library/tree/master/library/pod-security-policy>
+
+Security Cheat Sheet: <https://cheatsheetseries.owasp.org/cheatsheets/Kubernetes_Security_Cheat_Sheet.html>
+
+
 ### Secret
 Official documentation: <https://kubernetes.io/docs/concepts/configuration/secret/>
 
@@ -252,8 +294,47 @@ Extend k8s API with CRDs: <https://kubernetes.io/docs/tasks/extend-kubernetes/cu
 ### Designing a monitoring system
 ### OOM and resource limits
 ### Aggregations
+docs: <https://www.thegeekdiary.com/basics-of-ethernet-bonding-in-linux/>
+Network interface bonding is called by many names: Port Trunking, Channel Bonding, Link Aggregation, NIC teaming, and others. It combines or aggregates multiple network connections into a single channel bonding interface. This allows two or more network interfaces to act as one, to increase throughput and to provide redundancy or failover.
+
+The Linux kernel comes with the bonding driver for aggregating multiple physical network interfaces into a single logical interface (for example, aggregating eth0 and eth1 into bond0). For each bonded interface you can define the mode and the link monitoring options. There are seven different mode options, each providing specific load balancing and fault tolerance characteristics.
+
+The most common bonding modes are available:
+
+* Round-robin: This is the default mode. Network transmissions are in sequential order beginning with the first available slave. This mode provides load balancing and fault tolerance.
+* Active backup: Only one slave in the bond is active. Another slave interface becomes active if the active slave interface fails. The bond’s MAC address is externally visible on only one network adapter to avoid confusing a network switch. This mode provides fault tolerance.
+* XOR (exclusive-or): Network transmissions are based on a transmit hash policy. The default policy derives the hash by using MAC addresses. In this mode, network transmission destined for specific peers are always sent over the same slave interface. This mode works best for traffic to peers on the same link or local network. This mode provides load balancing and fault tolerance.
 ### Storage
 ### Signals
+Docs: <https://devopedia.org/linux-signals>
+A signal is basically a one-way notification. A signal can be sent by the kernel to a process, by a process to another process, or a process to itself. Just as hardware subsystems can interrupt the processor, signals interrupt process execution. They are therefore seen as software interrupts.
+
+There are 31 standard signals, numbered 1-31. Each signal is named as "SIG" followed by a suffix. Starting from version 2.2, the Linux kernel supports 33 different real-time signals. These have numbers 32-64.
+
+To send a signal one of the following syscall can be invoked: raise, kill, pidfd_send_signal etc.
+
+Some of the most commonly used signals and their meaning:
+0. which POSIX.1 calls null signal, is generally not used but kill function uses this as a special case. No signal is sent but it can be used (rather unreliably) to check if the process still exists
+1. SIGHUP If a process is being run from terminal and that terminal suddenly goes
+away then the process receives this signal. “HUP” is short for “hang up”
+and refers to hanging up the telephone in the days of telephone modems.
+2. SIGINT The process was “interrupted”. This happens when you press Control+C on
+the controlling terminal.
+4. SIGILL Illegal instruction. The program contained some machine code the CPU
+can't understand.
+9. SIGKILL The process was explicitly killed by somebody wielding the kill
+program.
+10. SIGUSR1 Left for the programmers to do whatever they want.
+15. SIGTERM The process was explicitly killed by somebody wielding the kill
+program.
+18. SIGCONT (To be read in conjunction with SIGSTOP.)
+If a process has been paused by sending it SIGSTOP then sending
+SIGCONT to the process wakes it up again (“continues” it).
+19. SIGSTOP (To be read in conjunction with SIGCONT.)
+If a process is sent SIGSTOP it is paused by the operating system. All its
+
+Example of signals:
+
 ### Boot processes
 ### Command lines
 ### Upgrades
