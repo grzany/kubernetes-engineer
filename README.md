@@ -90,11 +90,15 @@ There are three types of resources one can define requests and limits for:
 * huge pages
 
 ### Metrics and logging
+Prometheus overview: <https://prometheus.io/docs/introduction/overview/>
+Metrics server: <https://github.com/kubernetes-sigs/metrics-server>
 ### Troubleshooting
+debugging application/cluster in one doc: <https://kubernetes.io/docs/tasks/debug-application-cluster/_print/>
 #### Troubleshooting applications
 <https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application/>
 #### Troubleshooting cluster
 <https://kubernetes.io/docs/tasks/debug-application-cluster/debug-cluster/>
+
 ```
 kubectl cluster-info dump
 ```
