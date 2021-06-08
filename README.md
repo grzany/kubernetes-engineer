@@ -384,6 +384,11 @@ Official documentation: <https://searchstorage.techtarget.com/definition/cache-a
 ### Multithreading
 
 ## Systems
+### Syscalls
+<https://www.geeksforgeeks.org/introduction-of-system-call/>
+<https://en.wikipedia.org/wiki/System_call>
+### Process states
+Sample docs: <https://www.tutorialspoint.com/what-are-the-different-states-of-a-process>
 ### Designing a monitoring system
 ### OOM and resource limits
 ### Aggregations
@@ -426,7 +431,7 @@ SIGCONT to the process wakes it up again (“continues” it).
 19. SIGSTOP (To be read in conjunction with SIGCONT.)
 If a process is sent SIGSTOP it is paused by the operating system. All its
 
-Example of signals:
+
 
 ### Boot processes
 ### Command lines
